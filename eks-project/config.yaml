@@ -1,0 +1,41 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: my-cluster
+  region: ap-south-1
+  version: "1.30"
+
+vpc:
+  cidr: 10.0.0.0/16
+
+  # 👇 THIS IS CRITICAL
+  nat:
+    gateway: Single   # creates NAT automatically
+
+  clusterEndpoints:
+    publicAccess: true
+    privateAccess: true
+
+iam:
+  withOIDC: true
+
+managedNodeGroups:
+  - name: workers
+    instanceType: t3.medium
+    desiredCapacity: 2
+    minSize: 1
+    maxSize: 3
+
+    # 👇 Now safe to enable
+    privateNetworking: true
+
+    labels:
+      role: worker
+
+    iam:
+      withAddonPolicies:
+        imageBuilder: true
+        albIngress: true
+        cloudWatch: true
+        autoScaler: true

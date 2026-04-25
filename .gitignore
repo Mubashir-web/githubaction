@@ -1,0 +1,25 @@
+# system
+.ssh/
+.kube/
+.cache/
+.config/
+.docker/
+.npm/
+
+# logs & history
+*.log
+.bash_history
+
+# OS files
+.Xauthority
+.viminfo
+.lesshst
+.wget-hsts
+
+# secrets
+*.pem
+*.key
+.env
+
+# node
+node_modules/

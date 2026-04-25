@@ -1,0 +1,37 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: my-cluster
+  region: ap-south-1
+  version: "1.30"
+  tags:
+    environment: dev
+    project: my-app
+
+vpc:
+  cidr: 10.0.0.0/16
+  nat:
+    gateway: Single   
+  clusterEndpoints:
+    publicAccess: true    # kubectl from laptop works
+    privateAccess: true   # nodes talk to API server inside VPC
+
+iam:
+  withOIDC: true          # enables IRSA — pods assume IAM roles without access keys
+
+managedNodeGroups:
+  - name: workers
+    instanceType: c7i-flex.large
+    minSize: 1
+    maxSize: 4
+    desiredCapacity: 1
+    privateNetworking: true   # nodes go in private subnets
+    labels:
+      role: worker
+    iam:
+      withAddonPolicies:
+        imageBuilder: true    # ECR pull access
+        albIngress: true      # ALB controller permissions
+        cloudWatch: true      # logs to CloudWatch
+        autoScaler: true      # cluster autoscaler

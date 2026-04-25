@@ -1,0 +1,54 @@
+apiVersion: eksctl.io/v1alpha5
+kind: ClusterConfig
+
+metadata:
+  name: my-cluster
+  region: us-east-1
+  version: "1.30"
+  tags:
+    environment: dev
+    project: my-app
+
+availabilityZones:
+  - us-east-1a
+  - us-east-1b
+
+vpc:
+  cidr: 10.0.0.0/16
+
+  # 👇 THIS FIXES PRIVATE NODE INTERNET ISSUE
+  nat:
+    gateway: Single
+
+  clusterEndpoints:
+    publicAccess: true
+    privateAccess: true
+
+iam:
+  withOIDC: true
+
+managedNodeGroups:
+  - name: workers
+
+    # 👇 safer instance for capacity
+    instanceType: t3.medium
+
+    desiredCapacity: 2
+    minSize: 1
+    maxSize: 3
+
+    # 👇 now safe because NAT exists
+    privateNetworking: true
+
+    labels:
+      role: worker
+
+    iam:
+      withAddonPolicies:
+        imageBuilder: true
+        albIngress: true
+        cloudWatch: true
+        autoScaler: true
+
+    tags:
+      nodegroup-role: workers
